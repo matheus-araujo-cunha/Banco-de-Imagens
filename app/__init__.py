@@ -4,7 +4,6 @@ from http import HTTPStatus
 import os
 from werkzeug.utils import secure_filename
 
-#from app.kenzie.image import FILES_DIRECTORY
 from app.kenzie import list_by_extension,checking_file_size, get_file_path,validate_extension_file, validate_name_file, list_all_files
 from app.kenzie.image import ALLOWED_EXTENSIONS, FILES_DIRECTORY
 app = Flask(__name__)
@@ -24,13 +23,13 @@ if not file_exist:
 
 @app.get("/download/<file_name>")
 def download_by_filename(file_name:str):
-    return
+    return ""
 
 @app.get("/download-zip")
-def download_zipped_files():
+def download_dir_as_zip():
     file_extension = request.args.get("file_extension")
     compression_ratio = request.args.get("compression_ratio")
-    return    
+    return ""   
 
 @app.get("/files")
 def retrieve_files():
@@ -47,7 +46,7 @@ def retrieve_files_by_extension(extension:str):
         return pe.args[0],HTTPStatus.NOT_FOUND    
 
 @app.post("/upload")
-def upload_file():
+def upload():
    
     file = request.files["file"]
     content_length = request.headers["Content-Length"]
@@ -57,7 +56,7 @@ def upload_file():
     try:
         checking_file_size(content_length)
         validate_extension_file(extension_file)
-        validate_name_file(file.filename,extension_file)
+        validate_name_file(file.filename)
 
     
         abs_path = os.path.abspath(f"{FILES_DIRECTORY}/{extension_file}")
@@ -72,21 +71,4 @@ def upload_file():
         return fee.args[0],HTTPStatus.CONFLICT
     except PermissionError as pe:
         return pe.args[0],HTTPStatus.UNSUPPORTED_MEDIA_TYPE
-
    
-
-
-    
-    
-    
-
-        
-
- 
-        
- 
-
-    
-    # abs_path = os.path.abspath("fFILES_DIRECTORY")
-    # file_path = safe_join(abs_path,file)
-    return  ""          
