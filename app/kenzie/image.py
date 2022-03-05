@@ -4,8 +4,20 @@ from flask import safe_join
 
 FILES_DIRECTORY = os.getenv("FILES_DIRECTORY")
 MAX_CONTENT_LENGTH = os.getenv("MAX_CONTENT_LENGTH")
-ALLOWED_EXTENSIONS = os.getenv("ALLOWED_EXTENSIONS")
+ALLOWED_EXTENSIONS = os.getenv("ALLOWED_EXTENSIONS").split(",")
 
+
+def starting():
+    root_path = os.getcwd()
+    file_exist = os.access(FILES_DIRECTORY, os.F_OK)
+
+    if not file_exist:
+       os.mkdir(FILES_DIRECTORY)
+       for extension in ALLOWED_EXTENSIONS:
+           os.mkdir(f"{FILES_DIRECTORY}/{extension}")
+
+    return root_path
+    
 def checking_file_size(content_length):
     
     if int(content_length) > int(MAX_CONTENT_LENGTH):
@@ -15,22 +27,39 @@ def checking_file_size(content_length):
         })
         
 
-def get_file_path(filename:str):
-    abs_path = os.path.abspath(FILES_DIRECTORY)
+def get_file_path(filename:str, extension_file=""):
+    if extension_file:
+        abs_path = os.path.abspath(f"{FILES_DIRECTORY}/{extension_file}")    
+    else:
+        abs_path = os.path.abspath(FILES_DIRECTORY)    
     filepath = safe_join(abs_path,filename)
     return filepath
 
-def validate_name_file(filename):
-    list_files = walk_files()
+def validate_name_file(filename, extension_file):
+    list_files_extension = listdir(extension_file) 
    
-    for _,_,file in list_files:
-        if filename in file:
-            raise FileExistsError({
-                "error":"File name already exists"
-            }) 
 
+    if filename in list(list_files_extension):
+        raise FileExistsError({
+            "error":"File name already exists"
+            })            
+    return list_files_extension 
+
+def validate_file_exist(filename,extension_file):
+    list_files_extension = listdir(extension_file) 
+    
+    
+    if not filename in list_files_extension:
+        raise FileNotFoundError({
+            "error":"File Not found"
+        })
+    return list_files_extension   
+            
 def walk_files():
     return os.walk(FILES_DIRECTORY)
+
+def listdir(extension_file):
+    return os.listdir(f"{FILES_DIRECTORY}/{extension_file}")    
 
 def validate_extension_file(extension_file):
 
@@ -49,5 +78,25 @@ def list_by_extension(extension_file):
 
 def list_all_files():
     all_files = walk_files()
+    extensions = list(walk_files())[0][1]
+    response = {key:[] for key in extensions}
 
-    return [all_files for _,_,file in all_files for all_files in file]
+    for _,_,files in list(all_files):
+        teste = []        
+        for file in files:
+            teste.append(file)
+            response[file[file.index(".")+1:]] = teste
+    return response        
+
+    
+
+def changing_path_and_zip_files(ROOT_PATH,file_extension,compression_ratio):
+    os.chdir(f"{ROOT_PATH}/{FILES_DIRECTORY}")
+    os.system(f"zip {compression_ratio} -r {file_extension}.zip {file_extension}")
+    os.system(f"mv {file_extension}.zip /tmp")
+    os.chdir("/tmp")
+
+def format_name_file(file):
+      content_file = file.filename.split(".")
+      extension_file = content_file[1]
+      return extension_file
