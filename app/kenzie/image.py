@@ -1,4 +1,5 @@
 import os
+from xml.dom import NotFoundErr
 from flask import safe_join
 
 
@@ -7,7 +8,7 @@ MAX_CONTENT_LENGTH = os.getenv("MAX_CONTENT_LENGTH")
 ALLOWED_EXTENSIONS = os.getenv("ALLOWED_EXTENSIONS").split(",")
 
 
-def starting():
+def starting_project():
     root_path = os.getcwd()
     file_exist = os.access(FILES_DIRECTORY, os.F_OK)
 
@@ -17,7 +18,7 @@ def starting():
            os.mkdir(f"{FILES_DIRECTORY}/{extension}")
 
     return root_path
-    
+
 def checking_file_size(content_length):
     
     if int(content_length) > int(MAX_CONTENT_LENGTH):
@@ -74,6 +75,11 @@ def validate_extension_file(extension_file):
 def list_by_extension(extension_file):
     list_files_extension = list(os.listdir(f"{FILES_DIRECTORY}/{extension_file}"))
 
+    if not list_files_extension:
+        raise FileNotFoundError({
+            "error":f"There are no files in {extension_file} directory"
+            })
+
     return list_files_extension
 
 def list_all_files():
@@ -95,6 +101,8 @@ def changing_path_and_zip_files(ROOT_PATH,file_extension,compression_ratio):
     os.system(f"zip {compression_ratio} -r {file_extension}.zip {file_extension}")
     os.system(f"mv {file_extension}.zip /tmp")
     os.chdir("/tmp")
+
+    
 
 def format_name_file(file):
       content_file = file.filename.split(".")

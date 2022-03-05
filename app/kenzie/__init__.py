@@ -8,4 +8,4 @@ from .image import list_all_files
 from .image import validate_file_exist
 from .image import changing_path_and_zip_files
 from .image import format_name_file
-from .image import starting
+from .image import starting_project
