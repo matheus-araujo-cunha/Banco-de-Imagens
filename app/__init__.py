@@ -39,10 +39,7 @@ def download_dir_as_zip():
     except PermissionError as Permission:
         return Permission.args[0],HTTPStatus.NOT_FOUND        
     except FileNotFoundError as FileNotFound:
-        return {
-            "error":f"There are no files in {file_extension} directory",
-            "teste":os.getcwd() 
-            },HTTPStatus.NOT_FOUND
+        return FileNotFound.args[0],HTTPStatus.NOT_FOUND
   
     return send_from_directory(
         directory=f"/tmp",

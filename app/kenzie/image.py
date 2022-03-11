@@ -73,6 +73,7 @@ def validate_extension_file(extension_file):
 def list_by_extension(extension_file,ROOT_PATH=""):
     if ROOT_PATH:
         os.chdir(ROOT_PATH)
+        
     list_files_extension = list(os.listdir(f"{FILES_DIRECTORY}/{extension_file}"))
     
 
