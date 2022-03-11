@@ -1,8 +1,10 @@
+import os
 from flask import Flask,request,send_from_directory
 from http import HTTPStatus
 
 from app.kenzie import starting_project, list_by_extension,checking_file_size, format_name_file, changing_path_and_zip_files, get_file_path,validate_extension_file, validate_file_exist, validate_name_file, list_all_files
 from app.kenzie.image import FILES_DIRECTORY
+
 
 app = Flask(__name__)
 ROOT_PATH = starting_project()
@@ -31,13 +33,17 @@ def download_dir_as_zip():
 
     try:
         validate_extension_file(file_extension)
-        list_by_extension(file_extension)
+        list_by_extension(file_extension,ROOT_PATH)
         changing_path_and_zip_files(ROOT_PATH,file_extension,compression_ratio)
-    except FileNotFoundError as FileNotFound:
-        return FileNotFound.args[0],HTTPStatus.NOT_FOUND
+
     except PermissionError as Permission:
         return Permission.args[0],HTTPStatus.NOT_FOUND        
-
+    except FileNotFoundError as FileNotFound:
+        return {
+            "error":f"There are no files in {file_extension} directory",
+            "teste":os.getcwd() 
+            },HTTPStatus.NOT_FOUND
+  
     return send_from_directory(
         directory=f"/tmp",
         path=f"{file_extension}.zip",
