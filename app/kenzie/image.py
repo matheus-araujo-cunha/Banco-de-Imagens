@@ -1,4 +1,5 @@
 import os
+from flask import safe_join
 
 FILES_DIRECTORY = os.getenv("FILES_DIRECTORY")
 MAX_CONTENT_LENGTH = os.getenv("MAX_CONTENT_LENGTH")
